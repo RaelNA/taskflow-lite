@@ -2,8 +2,6 @@
 Un mini gestor de proyectos y tareas (tipo Kanban) desarrollado con **Astro** en el frontend y **PHP + MySQL** en el backend.  
 Diseñado para demostrar mis aptitudes en desarrollo full-stack moderno, arquitectura limpia y consumo de APIs desde frontend moderno.
 
-
-
 ## 📌 Características principales
 
 ### 🔐 Autenticación
