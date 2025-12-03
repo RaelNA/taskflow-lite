@@ -1,0 +1,58 @@
+---
+const pageTitle = "TaskFlow Lite - Dashboard";
+---
+
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{pageTitle}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+
+  <body style="font-family: system-ui; background:#0f172a; color:white;">
+
+    <main style="max-width: 900px; margin: 2rem auto; padding: 1rem;">
+      <h1 id="dashboardTitle">Dashboard</h1>
+
+      <p id="userWelcome" style="margin-top: 1rem; font-size: 1.2rem;">
+        Cargando datos del usuario...
+      </p>
+
+      <button id="logoutBtn"
+        style="
+          margin-top: 2rem;
+          background:#ef4444;
+          color:white;
+          padding:0.7rem 1.2rem;
+          border:none;
+          border-radius:8px;
+          font-weight:600;
+          cursor:pointer;
+        ">
+        Cerrar sesión
+      </button>
+    </main>
+
+    <script is:inline>
+      // 1. Leer usuario del localStorage
+      const user = JSON.parse(localStorage.getItem("taskflow_user") || "null");
+
+      const welcomeEl = document.getElementById("userWelcome");
+
+      if (!user) {
+        welcomeEl.textContent = "No estás autenticado. Redirigiendo...";
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 1500);
+      } else {
+        welcomeEl.textContent = "Hola " + user.name + " 👋";
+      }
+
+      // 2. Cerrar sesión
+      document.getElementById("logoutBtn").addEventListener("click", () => {
+        localStorage.removeItem("taskflow_user");
+        window.location.href = "/";
+      });
+    </script>
+  </body>
+</html>
