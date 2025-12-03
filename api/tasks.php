@@ -5,66 +5,70 @@ require_once "utils.php";
 $method = $_SERVER["REQUEST_METHOD"];
 
 if ($method === "GET") {
-    $projectId = $_GET["project_id"] ?? 0;
+    // /api/tasks.php?project_id=1
+    $projectId = isset($_GET["project_id"]) ? (int) $_GET["project_id"] : 0;
 
-    $sql = "SELECT * FROM tasks WHERE project_id = ? ORDER BY id DESC";
+    if ($projectId <= 0) {
+        jsonResponse(["success" => false, "error" => "project_id inválido"], 400);
+    }
+
+    $sql = "SELECT id, project_id, title, description, status 
+            FROM tasks 
+            WHERE project_id = ? 
+            ORDER BY id DESC";
+
     $stmt = $conn->prepare($sql);
+    if (!$stmt) {
+        jsonResponse(["success" => false, "error" => "Error en la consulta"], 500);
+    }
+
     $stmt->bind_param("i", $projectId);
     $stmt->execute();
 
-    jsonResponse($stmt->get_result()->fetch_all(MYSQLI_ASSOC));
+    $result = $stmt->get_result();
+    $tasks = $result->fetch_all(MYSQLI_ASSOC);
+
+    jsonResponse($tasks);
 }
 
 if ($method === "POST") {
+    // Cuerpo JSON
     $data = getRequestData();
 
-    $project_id = $data["project_id"] ?? 0;
-    $title      = $data["title"] ?? "";
-    $desc       = $data["description"] ?? "";
-    $status     = $data["status"] ?? "todo";
-    $priority   = $data["priority"] ?? "medium";
-    $due_date   = $data["due_date"] ?? null;
+    $project_id  = isset($data["project_id"]) ? (int) $data["project_id"] : 0;
+    $title       = $data["title"] ?? "";
+    $description = $data["description"] ?? "";
+    $status      = $data["status"] ?? "todo";
 
-    if (!$project_id || !$title) jsonResponse(["error" => "Campos requeridos"], 400);
+    if ($project_id <= 0 || !$title) {
+        jsonResponse([
+            "success" => false,
+            "error"   => "project_id y título son obligatorios"
+        ], 400);
+    }
 
-    $sql = "INSERT INTO tasks (project_id, title, description, status, priority, due_date)
-            VALUES (?, ?, ?, ?, ?, ?)";
+    $sql = "INSERT INTO tasks (project_id, title, description, status)
+            VALUES (?, ?, ?, ?)";
 
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("isssss", $project_id, $title, $desc, $status, $priority, $due_date);
-    $stmt->execute();
+    if (!$stmt) {
+        jsonResponse(["success" => false, "error" => "Error preparando la consulta"], 500);
+    }
 
-    jsonResponse(["success" => true, "id" => $stmt->insert_id]);
+    $stmt->bind_param("isss", $project_id, $title, $description, $status);
+
+    if (!$stmt->execute()) {
+        jsonResponse([
+            "success" => false,
+            "error"   => "No se pudo insertar la tarea"
+        ], 500);
+    }
+
+    jsonResponse([
+        "success" => true,
+        "id"      => $stmt->insert_id
+    ]);
 }
 
-if ($method === "PUT") {
-    parse_str(file_get_contents("php://input"), $putData);
-
-    $id       = $putData["id"] ?? 0;
-    $status   = $putData["status"] ?? null;
-
-    if (!$id || !$status) jsonResponse(["error" => "Datos insuficientes"], 400);
-
-    $sql = "UPDATE tasks SET status = ? WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("si", $status, $id);
-    $stmt->execute();
-
-    jsonResponse(["success" => true]);
-}
-
-if ($method === "DELETE") {
-    parse_str(file_get_contents("php://input"), $delData);
-    $id = $delData["id"] ?? 0;
-
-    if (!$id) jsonResponse(["error" => "ID requerido"], 400);
-
-    $sql = "DELETE FROM tasks WHERE id = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-
-    jsonResponse(["success" => true]);
-}
-
-jsonResponse(["error" => "Método no permitido"], 405);
+// Si llega aquí, método no permitido
+jsonResponse(["success" => false, "error" => "Método no permitido"], 405);

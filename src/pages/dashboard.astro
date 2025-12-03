@@ -1,44 +1,352 @@
 ---
-import ProjectListIsland from "../components/ProjectListIsland.jsx";
-import CreateProjectForm from "../components/CreateProjectForm.jsx";
 import "../styles/dashboard.css";
+
+const pageTitle = "TaskFlow Lite - Proyectos";
 ---
 
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <title>TaskFlow – Dashboard</title>
+    <title>{pageTitle}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
+  <body
+    style="
+      margin:0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background:#020617;
+      color:#e5e7eb;
+    "
+  >
+    <main style="max-width: 1100px; margin: 2rem auto; padding: 1rem 1.5rem;">
+      <!-- HEADER -->
+      <header
+        style="
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          margin-bottom:2rem;
+        "
+      >
+        <div>
+          <h1 style="margin:0; font-size:2.2rem; display:flex; align-items:center; gap:.6rem;">
+            <span style="font-size:2.3rem;">📁</span>
+            <span>Proyectos</span>
+          </h1>
+          <p id="userWelcome" style="margin-top:.4rem; color:#9ca3af;">
+            Cargando usuario...
+          </p>
+        </div>
 
-  <body>
-    <main class="dashboard">
+        <div style="display:flex; gap:1rem; align-items:center;">
+          <button
+            id="createProjectBtn"
+            style="
+              background:#22c55e;
+              color:#022c22;
+              padding:0.6rem 1.2rem;
+              border:none;
+              border-radius:999px;
+              font-weight:600;
+              cursor:pointer;
+            "
+          >
+            ➕ Crear proyecto
+          </button>
 
-      <header class="header">
-        <h1>Proyectos</h1>
-        <button id="logoutBtn" class="logout">Salir</button>
+          <button
+            id="logoutBtn"
+            style="
+              background:#ef4444;
+              color:white;
+              padding:0.6rem 1.1rem;
+              border:none;
+              border-radius:999px;
+              font-weight:600;
+              cursor:pointer;
+            "
+          >
+            Salir
+          </button>
+        </div>
       </header>
 
-      <section>
-  <h2>Nuevo proyecto</h2>
-  <CreateProjectForm client:load />
-</section>
+      <!-- LISTA DE PROYECTOS -->
+      <section id="projectsContainer">
+        <h2 style="font-size:1.3rem; margin-bottom:1rem;">Mis proyectos</h2>
 
-<section>
-  <h2>Mis proyectos</h2>
-  <ProjectListIsland client:load />
-</section>
-
+        <div
+          id="projectsList"
+          style="
+            display:grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap:1rem;
+          "
+        >
+          Cargando proyectos...
+        </div>
+      </section>
     </main>
 
-    <script is:inline>
-      document.getElementById("logoutBtn").onclick = () => {
+    <!-- MODAL CREAR PROYECTO -->
+    <div
+      id="projectModal"
+      style="
+        position:fixed;
+        inset:0;
+        background:rgba(0,0,0,0.5);
+        display:none;
+        justify-content:center;
+        align-items:center;
+        z-index:50;
+      "
+    >
+      <div
+        style="
+          background:#0f172a;
+          padding:1.5rem 1.75rem;
+          border-radius:1rem;
+          border:1px solid #1f2937;
+          width:100%;
+          max-width:420px;
+          box-shadow:0 20px 40px rgba(0,0,0,.6);
+        "
+      >
+        <h3 style="margin-top:0; margin-bottom:0.8rem; font-size:1.3rem;">
+          Crear nuevo proyecto
+        </h3>
+
+        <p style="margin-top:0; margin-bottom:1.3rem; color:#9ca3af; font-size:.9rem;">
+          Define un nombre y una descripción opcional para tu proyecto.
+        </p>
+
+        <div style="display:flex; flex-direction:column; gap:.8rem;">
+          <div style="display:flex; flex-direction:column; gap:.3rem;">
+            <label for="projectName" style="font-size:.9rem;">Nombre del proyecto</label>
+            <input
+              id="projectName"
+              type="text"
+              placeholder="Ej: CRM interno, Panel de métricas..."
+              style="
+                padding:.55rem .7rem;
+                border-radius:.5rem;
+                border:1px solid #1f2937;
+                background:#020617;
+                color:white;
+              "
+            />
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:.3rem;">
+            <label for="projectDesc" style="font-size:.9rem;">Descripción</label>
+            <textarea
+              id="projectDesc"
+              rows="3"
+              placeholder="Breve descripción del proyecto..."
+              style="
+                padding:.55rem .7rem;
+                border-radius:.5rem;
+                border:1px solid #1f2937;
+                background:#020617;
+                color:white;
+                resize:vertical;
+              "
+            ></textarea>
+          </div>
+        </div>
+
+        <p
+          id="projectError"
+          style="margin-top:.7rem; font-size:.85rem; color:#f97316; display:none;"
+        >
+          <!-- mensajes de error -->
+        </p>
+
+        <div
+          style="
+            margin-top:1.3rem;
+            display:flex;
+            justify-content:flex-end;
+            gap:.7rem;
+          "
+        >
+          <button
+            id="cancelProjectBtn"
+            style="
+              background:#6b7280;
+              color:white;
+              padding:0.55rem 1.1rem;
+              border:none;
+              border-radius:.8rem;
+              cursor:pointer;
+              font-size:.9rem;
+            "
+          >
+            Cancelar
+          </button>
+
+          <button
+            id="saveProjectBtn"
+            style="
+              background:#22c55e;
+              color:#022c22;
+              padding:0.55rem 1.1rem;
+              border:none;
+              border-radius:.8rem;
+              cursor:pointer;
+              font-weight:600;
+              font-size:.9rem;
+            "
+          >
+            Guardar
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script is:inline type="module">
+      const API_BASE = "http://localhost/taskflow-lite/api";
+
+async function getProjects() {
+  const res = await fetch(`${API_BASE}/projects.php`);
+  return res.json();
+}
+
+async function createProject(name, description) {
+  const res = await fetch(`${API_BASE}/projects.php`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name, description }),
+  });
+
+  return res.json();
+}
+
+      // ======== SALUDO Y SESIÓN ========
+      const user = JSON.parse(localStorage.getItem("taskflow_user") || "null");
+      const welcomeEl = document.getElementById("userWelcome");
+
+      if (!user) {
+        welcomeEl.textContent = "No estás autenticado. Redirigiendo al login...";
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 1500);
+      } else {
+        welcomeEl.textContent = "Hola " + user.name + " 👋";
+      }
+
+      document.getElementById("logoutBtn")?.addEventListener("click", () => {
         localStorage.removeItem("taskflow_user");
         window.location.href = "/";
-      };
+      });
+
+      // ======== LISTA DE PROYECTOS ========
+      const projectsList = document.getElementById("projectsList");
+
+      async function loadProjects() {
+        try {
+          const projects = await getProjects();
+
+          if (!Array.isArray(projects) || projects.length === 0) {
+            projectsList.innerHTML =
+              "<p style='color:#9ca3af;'>Aún no tienes proyectos. Crea el primero con el botón de arriba.</p>";
+            return;
+          }
+
+          const html = projects
+  .map(
+    (p) => `
+      <article class="project-card" data-project-id="${p.id}">
+        <h3 class="project-card__title">${p.name}</h3>
+        <p class="project-card__description">
+          ${p.description || "Sin descripción"}
+        </p>
+      </article>
+    `
+  )
+  .join("");
+
+
+          projectsList.innerHTML = html;
+
+// Añadir listeners de click a cada tarjeta
+const cards = projectsList.querySelectorAll(".project-card");
+cards.forEach((card) => {
+  card.addEventListener("click", () => {
+    const id = card.getAttribute("data-project-id");
+    if (!id) return;
+    // Navegamos a la página de tareas de ese proyecto
+    window.location.href = `/projects/${id}`;
+  });
+});
+        } catch (error) {
+          console.error(error);
+          projectsList.innerHTML =
+            "<p style='color:#f97316;'>No se pudieron cargar los proyectos.</p>";
+        }
+      }
+
+      loadProjects();
+
+      // ======== MODAL CREAR PROYECTO ========
+      const modal = document.getElementById("projectModal");
+      const openBtn = document.getElementById("createProjectBtn");
+      const cancelBtn = document.getElementById("cancelProjectBtn");
+      const saveBtn = document.getElementById("saveProjectBtn");
+      const errorEl = document.getElementById("projectError");
+
+      function openModal() {
+        errorEl.style.display = "none";
+        errorEl.textContent = "";
+        document.getElementById("projectName").value = "";
+        document.getElementById("projectDesc").value = "";
+        modal.style.display = "flex";
+      }
+
+      function closeModal() {
+        modal.style.display = "none";
+      }
+
+      openBtn?.addEventListener("click", openModal);
+      cancelBtn?.addEventListener("click", closeModal);
+
+      saveBtn?.addEventListener("click", async () => {
+        const name = document.getElementById("projectName").value.trim();
+        const desc = document.getElementById("projectDesc").value.trim();
+
+        if (!name) {
+          errorEl.textContent = "El nombre del proyecto es obligatorio.";
+          errorEl.style.display = "block";
+          return;
+        }
+
+        try {
+          const result = await createProject(name, desc);
+
+          if (!result || !result.success) {
+            errorEl.textContent =
+              "No se pudo crear el proyecto. Inténtalo de nuevo.";
+            errorEl.style.display = "block";
+            return;
+          }
+
+          closeModal();
+          loadProjects();
+        } catch (e) {
+          console.error(e);
+          errorEl.textContent =
+            "Error de conexión al crear el proyecto. Inténtalo de nuevo.";
+          errorEl.style.display = "block";
+        }
+      });
+
+      // Cerrar modal haciendo click fuera
+      modal.addEventListener("click", (ev) => {
+        if (ev.target === modal) {
+          closeModal();
+        }
+      });
     </script>
-
-
 
   </body>
 </html>

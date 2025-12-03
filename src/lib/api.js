@@ -3,7 +3,7 @@ const API_BASE = "http://localhost/taskflow-lite/api";
 
 export async function getProjects() {
   const res = await fetch(`${API_BASE}/projects.php`);
-  return await res.json();
+  return res.json();
 }
 
 export async function createProject(name, description) {
@@ -13,5 +13,5 @@ export async function createProject(name, description) {
     body: JSON.stringify({ name, description }),
   });
 
-  return await res.json();
+  return res.json();
 }
