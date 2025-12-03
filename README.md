@@ -39,31 +39,32 @@ Diseñado para demostrar mis aptitudes en desarrollo full-stack moderno, arquite
 
 ---
 
-## 🏗 Estructura del proyecto
+## 🏗️ Estructura del proyecto
 
 ```
-taskflow-lite/
+📁 taskflow-lite/
 │
-├── src/                       # Frontend Astro
-│   ├── pages/
-│   │   ├── index.astro        # Login
-│   │   ├── dashboard.astro    # Panel principal
-│   │   └── ...
-│   ├── components/            # Componentes UI
-│   └── lib/                   # Funciones fetch API
+├── 📂 src/                       # Frontend Astro
+│   ├── 📂 pages/                 # Páginas .astro
+│   │   ├── 📄 index.astro        # Login
+│   │   ├── 📄 dashboard.astro    # Panel principal
+│   │   └── 📄 ...                # Otras páginas
+│   │
+│   ├── 📂 components/            # Componentes UI reutilizables
+│   └── 📂 lib/                   # Funciones fetch API
 │
-├── api/                       # Backend PHP (corre en XAMPP/Apache)
-│   ├── conexion.php
-│   ├── utils.php
-│   ├── auth_login.php
-│   ├── auth_register.php
-│   ├── projects.php
-│   └── tasks.php
+├── 📂 api/                       # Backend PHP (corre con XAMPP/Apache)
+│   ├── 📄 conexion.php
+│   ├── 📄 utils.php
+│   ├── 📄 auth_login.php
+│   ├── 📄 auth_register.php
+│   ├── 📄 projects.php
+│   └── 📄 tasks.php
 │
-├── public/
-├── package.json
-├── README.md
-└── .gitignore
+├── 📂 public/                    # Archivos estáticos
+├── 📄 package.json               # Dependencias frontend
+├── 📄 README.md                  # Documentación del proyecto
+└── 📄 .gitignore                 # Archivos ignorados por Git
 ```
 
 ## 🛠 Tecnologías utilizadas
