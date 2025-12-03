@@ -1,0 +1,198 @@
+---
+export const prerender = false;
+
+const { id } = Astro.params;
+const pageTitle = `Proyecto ${id} - TaskFlow Lite`;
+import "../../styles/project-tasks.css";
+---
+
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{pageTitle}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+
+  <!-- Pasamos el id del proyecto como data-attribute para usarlo en el JS -->
+  <body class="page" data-project-id={id}>
+    <main class="project-page">
+      <header class="project-header">
+        <div>
+          <a href="/dashboard" class="back-link">← Volver a proyectos</a>
+          <h1 class="project-title">Proyecto #{id}</h1>
+          <p class="project-subtitle">
+            Aquí listaremos y gestionaremos las tareas de este proyecto.
+          </p>
+        </div>
+      </header>
+
+      <section class="tasks-section">
+        <div class="tasks-header">
+          <h2 class="tasks-title">Tareas</h2>
+          <button id="newTaskBtn" class="btn-primary">➕ Nueva tarea</button>
+        </div>
+
+        <div id="tasksList" class="tasks-list">
+          Cargando tareas...
+        </div>
+      </section>
+
+      <!-- Modal para crear tarea -->
+      <div id="taskModal" class="modal">
+        <div class="modal-content">
+          <h3 class="modal-title">Crear nueva tarea</h3>
+
+          <div class="form-group">
+            <label for="taskTitle">Título</label>
+            <input id="taskTitle" type="text" />
+          </div>
+
+          <div class="form-group">
+            <label for="taskDesc">Descripción</label>
+            <textarea id="taskDesc"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="taskStatus">Estado</label>
+            <select id="taskStatus">
+              <option value="todo">Por hacer</option>
+              <option value="doing">En progreso</option>
+              <option value="done">Hecha</option>
+            </select>
+          </div>
+
+          <p id="taskError" class="form-error"></p>
+
+          <div class="modal-actions">
+            <button id="cancelTaskBtn" class="btn-secondary">Cancelar</button>
+            <button id="saveTaskBtn" class="btn-primary">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script is:inline type="module">
+      const API_BASE = "http://localhost/taskflow-lite/api";
+
+      // Leemos el id del proyecto desde el data-attribute del body
+      const projectId = document.body.dataset.projectId;
+
+      async function getTasks() {
+        const res = await fetch(
+          `${API_BASE}/tasks.php?project_id=${projectId}`
+        );
+        return res.json();
+      }
+
+      async function createTask(task) {
+        const res = await fetch(`${API_BASE}/tasks.php`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(task),
+        });
+
+        return res.json();
+      }
+
+      const tasksList = document.getElementById("tasksList");
+      const newTaskBtn = document.getElementById("newTaskBtn");
+      const taskModal = document.getElementById("taskModal");
+      const cancelTaskBtn = document.getElementById("cancelTaskBtn");
+      const saveTaskBtn = document.getElementById("saveTaskBtn");
+      const taskError = document.getElementById("taskError");
+
+      function openTaskModal() {
+        taskError.textContent = "";
+        document.getElementById("taskTitle").value = "";
+        document.getElementById("taskDesc").value = "";
+        document.getElementById("taskStatus").value = "todo";
+        taskModal.classList.add("modal--visible");
+      }
+
+      function closeTaskModal() {
+        taskModal.classList.remove("modal--visible");
+      }
+
+      newTaskBtn?.addEventListener("click", openTaskModal);
+      cancelTaskBtn?.addEventListener("click", closeTaskModal);
+
+      // Cerrar modal haciendo click fuera del contenido
+      taskModal.addEventListener("click", (ev) => {
+        if (ev.target === taskModal) {
+          closeTaskModal();
+        }
+      });
+
+      async function loadTasks() {
+        try {
+          const tasks = await getTasks();
+
+          if (!Array.isArray(tasks) || tasks.length === 0) {
+            tasksList.innerHTML =
+              '<p class="status-msg">Aún no hay tareas en este proyecto.</p>';
+            return;
+          }
+
+          const html = tasks
+            .map(
+              (t) => `
+              <article class="task-card">
+                <header class="task-card__header">
+                  <span class="task-card__status task-card__status--${t.status}">
+                    ${t.status.toUpperCase()}
+                  </span>
+                </header>
+                <h3 class="task-card__title">${t.title}</h3>
+                <p class="task-card__description">
+                  ${t.description || "Sin descripción"}
+                </p>
+              </article>
+            `
+            )
+            .join("");
+
+          tasksList.innerHTML = html;
+        } catch (error) {
+          console.error(error);
+          tasksList.innerHTML =
+            '<p class="status-msg status-msg--error">No se pudieron cargar las tareas.</p>';
+        }
+      }
+
+      saveTaskBtn?.addEventListener("click", async () => {
+        const title = document.getElementById("taskTitle").value.trim();
+        const description = document.getElementById("taskDesc").value.trim();
+        const status = document.getElementById("taskStatus").value;
+
+        if (!title) {
+          taskError.textContent = "El título es obligatorio.";
+          return;
+        }
+
+        try {
+          const result = await createTask({
+            project_id: projectId,
+            title,
+            description,
+            status,
+          });
+
+          if (!result || !result.success) {
+            taskError.textContent =
+              result?.error || "No se pudo crear la tarea. Inténtalo de nuevo.";
+            return;
+          }
+
+          closeTaskModal();
+          loadTasks();
+        } catch (error) {
+          console.error(error);
+          taskError.textContent =
+            "Error de conexión al crear la tarea. Inténtalo de nuevo.";
+        }
+      });
+
+      loadTasks();
+    </script>
+  </body>
+</html>
