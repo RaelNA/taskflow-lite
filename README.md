@@ -43,26 +43,27 @@ Diseñado para demostrar mis aptitudes en desarrollo full-stack moderno, arquite
 
 taskflow-lite/
 │
-├── src/ # Frontend Astro
-│ ├── pages/
-│ │ ├── index.astro # Login
-│ │ ├── dashboard.astro # Panel principal
-│ │ └── ...
-│ ├── components/ # Componentes UI
-│ └── lib/ # Funciones fetch API
+├── src/                       # Frontend Astro
+│   ├── pages/
+│   │   ├── index.astro        # Login
+│   │   ├── dashboard.astro    # Panel principal
+│   │   └── ...
+│   ├── components/            # Componentes UI
+│   └── lib/                   # Funciones fetch API
 │
-├── api/ # Backend PHP (corre en XAMPP/Apache)
-│ ├── conexion.php
-│ ├── utils.php
-│ ├── auth_login.php
-│ ├── auth_register.php
-│ ├── projects.php
-│ └── tasks.php
+├── api/                       # Backend PHP (corre en XAMPP/Apache)
+│   ├── conexion.php
+│   ├── utils.php
+│   ├── auth_login.php
+│   ├── auth_register.php
+│   ├── projects.php
+│   └── tasks.php
 │
 ├── public/
 ├── package.json
 ├── README.md
 └── .gitignore
+
 
 
 ---
