@@ -1,46 +1,90 @@
-# Astro Starter Kit: Basics
+# 🚀 TaskFlow Lite  
+Un mini gestor de proyectos y tareas (tipo Kanban) desarrollado con **Astro** en el frontend y **PHP + MySQL** en el backend.  
+Diseñado para demostrar mis aptitudes en desarrollo full-stack moderno, arquitectura limpia y consumo de APIs desde frontend moderno.
 
-```sh
-npm create astro@latest -- --template basics
-```
+---
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+## 📌 Características principales
 
-## 🚀 Project Structure
+### 🔐 Autenticación
+- Inicio de sesión seguro (PHP + MySQL)
+- Validación de credenciales mediante API
+- Sesión persistente con `localStorage`
 
-Inside of your Astro project, you'll see the following folders and files:
+### 🗂 Gestión de proyectos
+- Listado de proyectos del usuario
+- Creación de nuevos proyectos
+- Relación 1-N entre usuarios y proyectos
 
-```text
-/
+### 📝 Gestión de tareas
+- CRUD completo de tareas
+- Estados: `todo`, `doing`, `done`
+- Prioridades: `low`, `medium`, `high`
+- Relación con proyectos
+- Actualización automática por API
+
+### 🎨 Frontend moderno
+- Interfaz construida en **Astro**
+- Estilos limpios y minimalistas
+- Código organizado y escalable
+
+### 🔧 Backend estructurado
+- API REST en PHP
+- Conexión MySQL optimizada (Prepared Statements)
+- Endpoints separados por responsabilidad:
+  - `/api/auth_login.php`
+  - `/api/auth_register.php`
+  - `/api/projects.php`
+  - `/api/tasks.php`
+
+---
+
+## 🏗 Estructura del proyecto
+
+taskflow-lite/
+│
+├── src/ # Frontend Astro
+│ ├── pages/
+│ │ ├── index.astro # Login
+│ │ ├── dashboard.astro # Panel principal
+│ │ └── ...
+│ ├── components/ # Componentes UI
+│ └── lib/ # Funciones fetch API
+│
+├── api/ # Backend PHP (corre en XAMPP/Apache)
+│ ├── conexion.php
+│ ├── utils.php
+│ ├── auth_login.php
+│ ├── auth_register.php
+│ ├── projects.php
+│ └── tasks.php
+│
 ├── public/
-│   └── favicon.svg
-├── src
-│   ├── assets
-│   │   └── astro.svg
-│   ├── components
-│   │   └── Welcome.astro
-│   ├── layouts
-│   │   └── Layout.astro
-│   └── pages
-│       └── index.astro
-└── package.json
-```
+├── package.json
+├── README.md
+└── .gitignore
 
-To learn more about the folder structure of an Astro project, refer to [our guide on project structure](https://docs.astro.build/en/basics/project-structure/).
 
-## 🧞 Commands
+---
 
-All commands are run from the root of the project, from a terminal:
+## 🛠 Tecnologías utilizadas
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+### **Frontend**
+- Astro
+- JavaScript
+- HTML5 / CSS3
 
-## 👀 Want to learn more?
+### **Backend**
+- PHP 8 (API REST)
+- MySQL (phpMyAdmin)
+- mysqli + prepared statements
 
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+### **Herramientas**
+- XAMPP
+- VSCode
+- Git / GitHub
+
+---
+
+
+
