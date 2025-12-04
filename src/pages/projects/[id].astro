@@ -32,9 +32,7 @@ import "../../styles/project-tasks.css";
           <button id="newTaskBtn" class="btn-primary">➕ Nueva tarea</button>
         </div>
 
-        <div id="tasksList" class="tasks-list">
-          Cargando tareas...
-        </div>
+        <div id="tasksList" class="tasks-list">Cargando tareas...</div>
       </section>
 
       <!-- Modal para crear tarea -->
@@ -139,8 +137,17 @@ import "../../styles/project-tasks.css";
               <article class="task-card">
                 <header class="task-card__header">
                   <span class="task-card__status task-card__status--${t.status}">
-                    ${t.status.toUpperCase()}
-                  </span>
+  ${
+    t.status === "todo"
+      ? "POR HACER"
+      : t.status === "doing"
+      ? "EN PROCESO"
+      : t.status === "done"
+      ? "HECHO"
+      : t.status.toUpperCase()
+  }
+</span>
+
                 </header>
                 <h3 class="task-card__title">${t.title}</h3>
                 <p class="task-card__description">
