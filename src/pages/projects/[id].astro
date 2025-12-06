@@ -27,13 +27,35 @@ import "../../styles/project-tasks.css";
       </header>
 
       <section class="tasks-section">
-        <div class="tasks-header">
-          <h2 class="tasks-title">Tareas</h2>
-          <button id="newTaskBtn" class="btn-primary">➕ Nueva tarea</button>
-        </div>
+  <div class="tasks-header">
+    <h2 class="tasks-title">Tareas</h2>
+    <button id="newTaskBtn" class="btn-primary">➕ Nueva tarea</button>
+  </div>
 
-        <div id="tasksList" class="tasks-list">Cargando tareas...</div>
-      </section>
+  <div class="kanban">
+    <div class="kanban-column">
+      <h3 class="kanban-column__title">POR HACER</h3>
+      <div id="column-todo" class="kanban-column__body">
+        Cargando tareas...
+      </div>
+    </div>
+
+    <div class="kanban-column">
+      <h3 class="kanban-column__title">EN PROCESO</h3>
+      <div id="column-doing" class="kanban-column__body">
+        Cargando tareas...
+      </div>
+    </div>
+
+    <div class="kanban-column">
+      <h3 class="kanban-column__title">HECHO</h3>
+      <div id="column-done" class="kanban-column__body">
+        Cargando tareas...
+      </div>
+    </div>
+  </div>
+</section>
+
 
       <!-- Modal para crear tarea -->
       <div id="taskModal" class="modal">
@@ -92,7 +114,9 @@ import "../../styles/project-tasks.css";
         return res.json();
       }
 
-      const tasksList = document.getElementById("tasksList");
+const columnTodo = document.getElementById("column-todo");
+const columnDoing = document.getElementById("column-doing");
+const columnDone = document.getElementById("column-done");
       const newTaskBtn = document.getElementById("newTaskBtn");
       const taskModal = document.getElementById("taskModal");
       const cancelTaskBtn = document.getElementById("cancelTaskBtn");
@@ -121,50 +145,69 @@ import "../../styles/project-tasks.css";
         }
       });
 
-      async function loadTasks() {
-        try {
-          const tasks = await getTasks();
+      function getStatusLabel(status) {
+  if (status === "todo") return "POR HACER";
+  if (status === "doing") return "EN PROCESO";
+  if (status === "done") return "HECHO";
+  return status.toUpperCase();
+}
 
-          if (!Array.isArray(tasks) || tasks.length === 0) {
-            tasksList.innerHTML =
-              '<p class="status-msg">Aún no hay tareas en este proyecto.</p>';
-            return;
-          }
-
-          const html = tasks
-            .map(
-              (t) => `
-              <article class="task-card">
-                <header class="task-card__header">
-                  <span class="task-card__status task-card__status--${t.status}">
-  ${
-    t.status === "todo"
-      ? "POR HACER"
-      : t.status === "doing"
-      ? "EN PROCESO"
-      : t.status === "done"
-      ? "HECHO"
-      : t.status.toUpperCase()
+function renderTasksInColumn(columnEl, tasks) {
+  if (!tasks || tasks.length === 0) {
+    columnEl.innerHTML =
+      '<p class="status-msg">Sin tareas en esta columna.</p>';
+    return;
   }
-</span>
 
-                </header>
-                <h3 class="task-card__title">${t.title}</h3>
-                <p class="task-card__description">
-                  ${t.description || "Sin descripción"}
-                </p>
-              </article>
-            `
-            )
-            .join("");
+  const html = tasks
+    .map(
+      (t) => `
+        <article class="task-card">
+          <header class="task-card__header">
+            <span class="task-card__status task-card__status--${t.status}">
+              ${getStatusLabel(t.status)}
+            </span>
+          </header>
+          <h3 class="task-card__title">${t.title}</h3>
+          <p class="task-card__description">
+            ${t.description || "Sin descripción"}
+          </p>
+        </article>
+      `
+    )
+    .join("");
 
-          tasksList.innerHTML = html;
-        } catch (error) {
-          console.error(error);
-          tasksList.innerHTML =
-            '<p class="status-msg status-msg--error">No se pudieron cargar las tareas.</p>';
-        }
-      }
+  columnEl.innerHTML = html;
+}
+
+async function loadTasks() {
+  try {
+    const tasks = await getTasks();
+
+    if (!Array.isArray(tasks)) {
+      columnTodo.innerHTML =
+        '<p class="status-msg status-msg--error">Error cargando tareas.</p>';
+      columnDoing.innerHTML = "";
+      columnDone.innerHTML = "";
+      return;
+    }
+
+    const todoTasks = tasks.filter((t) => t.status === "todo");
+    const doingTasks = tasks.filter((t) => t.status === "doing");
+    const doneTasks = tasks.filter((t) => t.status === "done");
+
+    renderTasksInColumn(columnTodo, todoTasks);
+    renderTasksInColumn(columnDoing, doingTasks);
+    renderTasksInColumn(columnDone, doneTasks);
+  } catch (error) {
+    console.error(error);
+    const errorHtml =
+      '<p class="status-msg status-msg--error">No se pudieron cargar las tareas.</p>';
+    columnTodo.innerHTML = errorHtml;
+    columnDoing.innerHTML = "";
+    columnDone.innerHTML = "";
+  }
+}
 
       saveTaskBtn?.addEventListener("click", async () => {
         const title = document.getElementById("taskTitle").value.trim();
