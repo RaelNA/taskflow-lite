@@ -93,6 +93,128 @@ import "../../styles/project-tasks.css";
 
     <script is:inline type="module">
       const API_BASE = "http://localhost/taskflow-lite/api";
+const projectId = document.body.dataset.projectId;
+
+// ======== API ========
+async function getTasks() {
+  const res = await fetch(`${API_BASE}/tasks.php?project_id=${projectId}`);
+  return res.json();
+}
+
+async function createTask(task) {
+  const res = await fetch(`${API_BASE}/tasks.php`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(task),
+  });
+  return res.json();
+}
+
+// ======== DOM (KANBAN) ========
+const columnTodo = document.getElementById("column-todo");
+const columnDoing = document.getElementById("column-doing");
+const columnDone = document.getElementById("column-done");
+
+// ======== DOM (MODAL) ========
+const newTaskBtn = document.getElementById("newTaskBtn");
+const taskModal = document.getElementById("taskModal");
+const cancelTaskBtn = document.getElementById("cancelTaskBtn");
+const saveTaskBtn = document.getElementById("saveTaskBtn");
+const taskError = document.getElementById("taskError");
+
+function getStatusLabel(status) {
+  if (status === "todo") return "POR HACER";
+  if (status === "doing") return "EN PROCESO";
+  if (status === "done") return "HECHO";
+  return status.toUpperCase();
+}
+
+function renderTasksInColumn(columnEl, tasks) {
+  if (!tasks || tasks.length === 0) {
+    columnEl.innerHTML = '<p class="status-msg">Sin tareas en esta columna.</p>';
+    return;
+  }
+
+  const html = tasks
+    .map(
+      (t) => `
+        <article class="task-card">
+          <header class="task-card__header">
+            <span class="task-card__status task-card__status--${t.status}">
+              ${getStatusLabel(t.status)}
+            </span>
+          </header>
+          <h3 class="task-card__title">${t.title}</h3>
+          <p class="task-card__description">
+            ${t.description || "Sin descripción"}
+          </p>
+        </article>
+      `
+    )
+    .join("");
+
+  columnEl.innerHTML = html;
+}
+
+async function loadTasks() {
+  try {
+    const tasks = await getTasks();
+
+    if (!Array.isArray(tasks)) {
+      columnTodo.innerHTML =
+        '<p class="status-msg status-msg--error">Error cargando tareas.</p>';
+      columnDoing.innerHTML = "";
+      columnDone.innerHTML = "";
+      return;
+    }
+
+    const todoTasks = tasks.filter((t) => t.status === "todo");
+    const doingTasks = tasks.filter((t) => t.status === "doing");
+    const doneTasks = tasks.filter((t) => t.status === "done");
+
+    renderTasksInColumn(columnTodo, todoTasks);
+    renderTasksInColumn(columnDoing, doingTasks);
+    renderTasksInColumn(columnDone, doneTasks);
+  } catch (error) {
+    console.error(error);
+    const errorHtml =
+      '<p class="status-msg status-msg--error">No se pudieron cargar las tareas.</p>';
+    columnTodo.innerHTML = errorHtml;
+    columnDoing.innerHTML = "";
+    columnDone.innerHTML = "";
+  }
+}
+
+// ======== MODAL ========
+function openTaskModal() {
+  taskError.textContent = "";
+  document.getElementById("taskTitle").value = "";
+  document.getElementById("taskDesc").value = "";
+  document.getElementById("taskStatus").value = "todo";
+  taskModal.classList.add("modal--visible");
+}
+
+function closeTaskModal() {
+  taskModal.classList.remove("modal--visible");
+}
+
+newTaskBtn?.addEventListener("click", openTaskModal);
+cancelTaskBtn?.addEventListener("click", closeTaskModal);
+
+taskModal.addEventListener("click", (ev) => {
+  if (ev.target === taskModal) closeTaskModal();
+});
+
+// Guardar tarea
+saveTaskBtn?.addEventListener("click", async () => {
+  const title = document.getElementById("taskTitle").value.trim();
+  const description = document.getElementById("taskDesc").value.trim();
+  const status = document.getElementById("taskStatus").value;
+
+  if (!title) {
+    taskError.textContent = "El título es obligatorio.";
+    return;
+  }
 
       // Leemos el id del proyecto desde el data-attribute del body
       const projectId = document.body.dataset.projectId;
